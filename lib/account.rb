@@ -4,7 +4,7 @@ class Account
   class InsufficientFundsError < StandardError; end
 
   # Read-only: only credit!/debit! may change the balance, to enforce the invariant.
-  attr_reader :balance
+  attr_reader :balance, :number
 
   def initialize(number:, balance:)
     @number = number
