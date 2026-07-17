@@ -47,5 +47,14 @@ RSpec.describe ConsoleReport do
         expect { ConsoleReport.print(ledger, invalid_amount_result) }.to output(/invalid amount/).to_stdout
       end
     end
+    context "for a reason nobody's added a label for yet" do
+      # TransferResult never actually produces a reason like this today - this is here so a
+      # future new reason with no matching label prints something visible, not a blank space.
+      let(:mystery_transfer) { TransferResult.new(transfer: transfer, success: false, reason: :a_brand_new_reason) }
+      let(:mystery_result) { [mystery_transfer] }
+      it "still prints a message instead of leaving the label blank" do
+        expect { ConsoleReport.print(ledger, mystery_result) }.to output(/unknown reason/).to_stdout
+      end
+    end
   end
 end
