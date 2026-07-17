@@ -9,17 +9,17 @@ RSpec.describe BatchRunner do
     let(:transfers_path) { "spec/fixtures/transactions.csv" }
 
     it "creates a hash with TransferResults and the ledgers for the account" do
-      batch = BatchRunner.call(balances_path, transfers_path)
+      batch = BatchRunner.call(balances_path: balances_path, transfers_path: transfers_path)
       expect(batch[:results].length).to eq(2)
       expect(batch[:ledger]).to be_an_instance_of(Ledger)
     end
-    # integration tests
+
     context "when run against the real provided CSVs" do
       let(:real_balances_path) { "mable_account_balances.csv" }
       let(:real_transfers_path) { "mable_transactions.csv" }
 
       it "returns the correct balance" do
-        batch = BatchRunner.call(real_balances_path, real_transfers_path)
+        batch = BatchRunner.call(balances_path: real_balances_path, transfers_path: real_transfers_path)
 
         expect(batch[:ledger].find("1111234522226789").balance).to eq(BigDecimal("4820.50"))
         expect(batch[:ledger].find("1111234522221234").balance).to eq(BigDecimal("9974.40"))
@@ -32,7 +32,7 @@ RSpec.describe BatchRunner do
       let(:transfer_failures_path) { "spec/fixtures/transfers_with_failures.csv" }
 
       it "processes each transfer independently and reports the outcome" do
-        batch = BatchRunner.call(balances_path, transfer_failures_path)
+        batch = BatchRunner.call(balances_path: balances_path, transfers_path: transfer_failures_path)
 
         successful_result, insufficient_funds_result, account_not_found_result, invalid_amount_result = batch[:results]
 

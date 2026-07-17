@@ -7,11 +7,12 @@ require_relative "ledger"
 class BatchRunner
   # .call is just the public entry point, hands off to a real instance
   # straight away so the private methods below actually work
-  def self.call(balances_path, transfers_path)
-    new(balances_path, transfers_path).call
+  def self.call(balances_path:, transfers_path:)
+    # Named on both sides so it's clear at a glance which value goes where.
+    new(balances_path: balances_path, transfers_path: transfers_path).call
   end
 
-  def initialize(balances_path, transfers_path)
+  def initialize(balances_path:, transfers_path:)
     @balances_path = balances_path
     @transfers_path = transfers_path
   end
