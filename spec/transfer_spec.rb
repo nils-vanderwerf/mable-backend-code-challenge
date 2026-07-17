@@ -2,10 +2,11 @@ require "bigdecimal"
 require_relative "../lib/transfer"
 require_relative "../lib/transfer_result"
 require_relative "../lib/account"
+require_relative "../lib/ledger"
 
 RSpec.describe Transfer do
   describe '#execute' do
-    let(:ledger) { { "1111234522226789" => account_one, "1212343433335665" => account_two } }
+    let(:ledger) { Ledger.new([account_one, account_two]) }
     let(:account_one) { Account.new(number: "1111234522226789", balance: BigDecimal("1000.00")) }
     let(:account_two) { Account.new(number: "1212343433335665", balance: BigDecimal("500.00")) }
     

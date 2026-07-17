@@ -9,8 +9,8 @@ class Transfer
   end
 
   def execute(ledger)
-    from_account = ledger[@from]
-    to_account = ledger[@to]
+    from_account = ledger.find(@from)
+    to_account = ledger.find(@to)
 
     # Skip silently rather than raise - one unknown account number shouldn't
     # crash the rest of the day's batch.
