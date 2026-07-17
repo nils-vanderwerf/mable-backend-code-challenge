@@ -24,6 +24,10 @@ ruby bin/run.rb
 
 Runs the provided `mable_account_balances.csv` / `mable_transactions.csv` at the project root and prints a report: final balances, one line per transfer with its outcome, and a summary count.
 
+Example output from a mixed batch (success, insufficient funds, account not found, invalid amount all in one run):
+
+![Console output showing final balances and per-transfer outcomes](docs/console_output.png)
+
 ## Assumptions
 
 - **Output format**: console summary for now (final balances + a success/fail line per transfer). Can swap for a CSV writer later if that's preferred.
@@ -48,17 +52,15 @@ Loader specs run against small fixture CSVs in `spec/fixtures/`, not the provide
 
 All four sample transfers succeed - asserted directly in `spec/batch_runner_spec.rb`.
 
-## Known limitations
-
-- `AccountLoader` doesn't validate its input - it assumes each CSV row is well-formed (right number of columns, a valid number for the balance). A malformed row would raise a raw CSV/BigDecimal error rather than a clear one. Deliberate scope cut for the time-box, would add with more time.
-
 ## Design
 
 - `Account` - balance plus the one rule that can never break: it can't go negative.
-- `Transfer` - a requested move of money between two account numbers. `#execute(ledger)` does the work and returns a `TransferResult`.
+- `Transfer` - a requested move of money between two account numbers. `#execute(ledger)` does the work and returns a `TransferResult`. Also guards against a negative amount up front, failing gracefully rather than letting `Account` raise and crash the batch.
 - `TransferResult` - what happened to a transfer: success or not, and why if not.
 - `Ledger` - a lookup table, account number -> `Account`.
-- `AccountLoader` / `TransferLoader` - turn the CSV files into the objects above.
+- `AccountLoader` / `TransferLoader` - turn the CSV files into the objects above, skipping and warning on any malformed row rather than failing the whole file.
 - `BatchRunner` - orchestrates a full run: builds the `Ledger`, loads the transfers, executes each one, hands back `{ results:, ledger: }`. `.call` is a thin wrapper that delegates to a short-lived instance, so private helper methods have somewhere to live.
 - `ConsoleReport` - prints the result: final balances, per-transfer outcomes, a summary count.
 - `bin/run.rb` - entry point, wires real file paths to `BatchRunner` + `ConsoleReport`.
+
+**A design detail**: `BatchRunner`/`ConsoleReport` need private helpers that share state across calls (e.g. the file paths passed in), so their `.call`/`.print` class methods delegate immediately to a short-lived instance - ordinary `private` instance methods then just work. `AccountLoader`/`TransferLoader`'s row-building helpers need no state at all (pure functions of a single CSV row), so they use `private_class_method` instead - no instance required. Same problem, two different tools, chosen by what the helper actually needs.

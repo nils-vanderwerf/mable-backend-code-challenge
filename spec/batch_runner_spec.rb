@@ -34,7 +34,7 @@ RSpec.describe BatchRunner do
       it "processes each transfer independently and reports the outcome" do
         batch = BatchRunner.call(balances_path, transfer_failures_path)
 
-        successful_result, insufficient_funds_result, account_not_found_result = batch[:results]
+        successful_result, insufficient_funds_result, account_not_found_result, invalid_amount_result = batch[:results]
 
         expect(successful_result.success?).to eq(true)
         expect(successful_result.reason).to eq(nil)
@@ -44,6 +44,9 @@ RSpec.describe BatchRunner do
 
         expect(account_not_found_result.success?).to eq(false)
         expect(account_not_found_result.reason).to eq(TransferResult::ACCOUNT_NOT_FOUND)
+
+        expect(invalid_amount_result.success?).to eq(false)
+        expect(invalid_amount_result.reason).to eq(TransferResult::INVALID_AMOUNT)
       end
     end
   end

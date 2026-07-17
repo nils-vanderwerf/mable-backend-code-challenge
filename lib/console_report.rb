@@ -46,7 +46,15 @@ class ConsoleReport
               when TransferResult::INVALID_AMOUNT
                 INVALID_AMOUNT_LABEL
               end
-      puts "Transfer of $#{transfer.amount.to_s('F')} from #{transfer.from} to #{transfer.to}: Transfer was #{label}"
+      formatted_amount = format_amount(transfer.amount)
+      puts "Transfer of #{formatted_amount} from #{transfer.from} to #{transfer.to}: Transfer was #{label}"
     end
+  end
+
+  # Rare in practice (a well-formed CSV shouldn't have negative amounts), but
+  # invalid-amount transfers can hit this - minus sign goes before the $, not
+  # between it and the digits.
+  def format_amount(amount)
+    amount.negative? ? "-$#{amount.abs.to_s('F')}" : "$#{amount.to_s('F')}"
   end
 end
