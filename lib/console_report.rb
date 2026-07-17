@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 class ConsoleReport
-  SUCCESS_LABEL = "successful"
-  INSUFFICIENT_FUNDS_LABEL = "unsuccessful - insufficient funds"
-  ACCOUNT_NOT_FOUND_LABEL = "unsuccessful - account not found"
+  SUCCESS_LABEL = "successful".freeze
+  INSUFFICIENT_FUNDS_LABEL = "unsuccessful - insufficient funds".freeze
+  ACCOUNT_NOT_FOUND_LABEL = "unsuccessful - account not found".freeze
 
   def self.print(ledger, results)
     new(ledger, results).print

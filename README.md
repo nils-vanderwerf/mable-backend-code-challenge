@@ -18,7 +18,11 @@ bundle exec rspec
 
 ## Running it
 
-Not finished yet - `bin/run.rb` is still being built.
+```
+ruby bin/run.rb
+```
+
+Runs the provided `mable_account_balances.csv` / `mable_transactions.csv` at the project root and prints a report: final balances, one line per transfer with its outcome, and a summary count.
 
 ## Assumptions
 
@@ -30,7 +34,19 @@ Not finished yet - `bin/run.rb` is still being built.
 
 ## Testing
 
-Loader specs run against small fixture CSVs in `spec/fixtures/`, not the provided sample data - keeps those tests decoupled from anything unrelated to parsing. The provided `mable_account_balances.csv` / `mable_transactions.csv` are used in the integration test instead, to prove the whole system against the real data end to end.
+Loader specs run against small fixture CSVs in `spec/fixtures/`, not the provided sample data - keeps those tests decoupled from anything unrelated to parsing. `BatchRunner`'s spec covers three integration scenarios: a small fixture (basic wiring), the real provided CSVs (final balances match the hand-verified table below), and `spec/fixtures/transfers_with_failures.csv` (a mixed batch - success, insufficient funds, and an unknown account number in one run) since the provided sample data is entirely happy-path.
+
+### Expected result for the provided sample data
+
+| Account | Start | End |
+|---|---:|---:|
+| 1111234522226789 | 5000.00 | 4820.50 |
+| 1111234522221234 | 10000.00 | 9974.40 |
+| 2222123433331212 | 550.00 | 1550.00 |
+| 1212343433335665 | 1200.00 | 1725.60 |
+| 3212343433335755 | 50000.00 | 48679.50 |
+
+All four sample transfers succeed - asserted directly in `spec/batch_runner_spec.rb`.
 
 ## Known limitations
 
@@ -44,4 +60,5 @@ Loader specs run against small fixture CSVs in `spec/fixtures/`, not the provide
 - `Ledger` - a lookup table, account number -> `Account`.
 - `AccountLoader` / `TransferLoader` - turn the CSV files into the objects above.
 - `BatchRunner` - orchestrates a full run: builds the `Ledger`, loads the transfers, executes each one, hands back `{ results:, ledger: }`. `.call` is a thin wrapper that delegates to a short-lived instance, so private helper methods have somewhere to live.
-- `ConsoleReport` - prints the result. Not built yet.
+- `ConsoleReport` - prints the result: final balances, per-transfer outcomes, a summary count.
+- `bin/run.rb` - entry point, wires real file paths to `BatchRunner` + `ConsoleReport`.

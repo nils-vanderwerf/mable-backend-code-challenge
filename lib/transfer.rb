@@ -2,7 +2,7 @@
 require_relative "transfer_result"
 
 class Transfer
-  attr_reader :amount, :from, :to
+  attr_reader :from, :to, :amount
 
   def initialize(from:, to:, amount:)
     @from = from

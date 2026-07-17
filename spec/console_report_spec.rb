@@ -21,17 +21,17 @@ RSpec.describe ConsoleReport do
       let(:successful_transfer) { TransferResult.new(transfer: transfer, success: true, reason: nil) }
       let(:successful_result) { [successful_transfer] }
       it 'displays a message for a successful transfer' do
-        expect { ConsoleReport.print(ledger, successful_result) }.to output(/: successful/).to_stdout
+        expect { ConsoleReport.print(ledger, successful_result) }.to output(/Transfer was successful/).to_stdout
       end
     end
-    context 'for a unsuccessful transfer due to insufficient funds' do
+    context 'for an unsuccessful transfer due to insufficient funds' do
       let(:low_fund_transfer) { TransferResult.new(transfer: transfer, success: false, reason: TransferResult::INSUFFICIENT_FUNDS) }
       let(:low_fund_result) { [low_fund_transfer] }
       it 'displays an insufficient funds message' do
         expect { ConsoleReport.print(ledger, low_fund_result) }.to output(/insufficient funds/).to_stdout
       end
     end
-    context 'for a unsuccessful transfer due to an account not being found' do
+    context 'for an unsuccessful transfer due to an account not being found' do
       let(:no_account_transfer) { TransferResult.new(transfer: transfer, success: false, reason: TransferResult::ACCOUNT_NOT_FOUND) }
       let(:no_account_result) { [no_account_transfer] }
       it 'displays an account not found message' do
