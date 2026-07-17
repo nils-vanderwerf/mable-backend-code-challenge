@@ -2,6 +2,8 @@
 
 A simple banking system: load a company's account balances from a CSV, then apply a day's transfers from another CSV. A transfer that would overdraw an account, references an unknown account, or has a negative amount gets skipped and reported - the rest of the batch still runs. Malformed input (bad rows, duplicate account numbers, invalid CSV syntax) is handled the same way - skipped and warned about, never a crash.
 
+*Built with Claude Code as a TDD pairing partner - used deliberately to enforce strict test-first discipline and catch mistakes early while every design decision and logic stayed mine.*
+
 ## Setup
 
 ```
