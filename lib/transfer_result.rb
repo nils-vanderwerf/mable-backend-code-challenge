@@ -3,7 +3,8 @@
 class TransferResult
   INSUFFICIENT_FUNDS = :insufficient_funds
   ACCOUNT_NOT_FOUND = :account_not_found
-  
+  INVALID_AMOUNT = :invalid_amount
+
   attr_reader :transfer, :success, :reason
 
   def initialize(transfer:, success:, reason: nil)
