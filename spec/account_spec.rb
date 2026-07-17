@@ -1,4 +1,3 @@
-require "bigdecimal"
 require_relative "../lib/account"
 
 RSpec.describe Account do

@@ -17,13 +17,13 @@ RSpec.describe TransferResult do
       end
     end
     context 'when a transfer is unsuccessful' do
-      let(:result) { TransferResult.new(transfer: transfer, success: false, reason: :insufficient_funds) }
+      let(:result) { TransferResult.new(transfer: transfer, success: false, reason: TransferResult::INSUFFICIENT_FUNDS) }
 
       it 'returns false' do
         expect(result.success?).to eq(false)
       end
       it 'provides a reason' do
-        expect(result.reason).to eq(:insufficient_funds)
+        expect(result.reason).to eq(TransferResult::INSUFFICIENT_FUNDS)
       end
     end
   end

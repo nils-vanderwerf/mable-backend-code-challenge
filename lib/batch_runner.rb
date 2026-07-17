@@ -22,8 +22,10 @@ class BatchRunner
   private
 
   # builds the ledger once from the balances csv
+  # need to memoize it because otherwise it will build a new ledger from scratch, instead of the transfers' effects 
+
   def ledger
-    Ledger.new(AccountLoader.load(@balances_path))
+    @ledger ||= Ledger.new(AccountLoader.load(@balances_path))
   end
 
   # loads the transfers csv and runs each one against the ledger above

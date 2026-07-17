@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require "csv"
+require "bigdecimal"
 require_relative "../transfer"
 
 class TransferLoader

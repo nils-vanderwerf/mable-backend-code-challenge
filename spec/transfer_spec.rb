@@ -36,7 +36,7 @@ RSpec.describe Transfer do
       it 'returns an unsuccessful TransferResult object' do
         result = transfer.execute(ledger)
         expect(result.success?).to eq(false)
-        expect(result.reason).to eq(:insufficient_funds)
+        expect(result.reason).to eq(TransferResult::INSUFFICIENT_FUNDS)
       end
     end
 
@@ -55,12 +55,13 @@ RSpec.describe Transfer do
       it "returns an unsuccessful TransferResult object when the from account doesn't exist" do
         result = no_from_account_transfer.execute(ledger)
         expect(result.success?).to eq(false)
-        expect(result.reason).to eq(:account_not_found)
+        expect(result.reason).to eq(TransferResult::ACCOUNT_NOT_FOUND)
+        
       end
       it "returns an unsuccessful TransferResult object when the to account doesn't exist" do
         result = no_to_account_transfer.execute(ledger)
         expect(result.success?).to eq(false)
-        expect(result.reason).to eq(:account_not_found)
+        expect(result.reason).to eq(TransferResult::ACCOUNT_NOT_FOUND)
       end
     end
   end

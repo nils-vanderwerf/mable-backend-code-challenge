@@ -11,4 +11,8 @@ class Ledger
     # just returns nil if the account isn't there, no need to raise
     @accounts[number]
   end
+   # if we need to look up all accounts in the collection, will be useful for console report
+  def all
+    @accounts.values
+  end
 end
