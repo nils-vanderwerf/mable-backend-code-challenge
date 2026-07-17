@@ -8,8 +8,7 @@ class Account
   attr_reader :balance, :number
 
   def initialize(number:, balance:)
-    # Checks for a 16 digit number, Message omits the number itself
-    # same PII reasoning as debit!'s InsufficientFundsError.
+    # Message omits the number itself - same PII reasoning as debit!'s InsufficientFundsError.
     unless number.is_a?(String) && number.match?(/\A\d{16}\z/)
       raise ArgumentError, "account number must be a 16 digit number"
     end
