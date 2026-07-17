@@ -1,6 +1,6 @@
 # Mable Back End Code Challenge
 
-A simple banking system: load a company's account balances from a CSV, then apply a day's transfers from another CSV. A transfer that would overdraw an account, or references an account number that doesn't exist, gets skipped and reported - the rest of the batch still runs.
+A simple banking system: load a company's account balances from a CSV, then apply a day's transfers from another CSV. A transfer that would overdraw an account, references an unknown account, or has a negative amount gets skipped and reported - the rest of the batch still runs. Malformed input (bad rows, duplicate account numbers, invalid CSV syntax) is handled the same way - skipped and warned about, never a crash.
 
 ## Setup
 
@@ -22,7 +22,9 @@ bundle exec rspec
 ruby bin/run.rb
 ```
 
-Runs the provided `mable_account_balances.csv` / `mable_transactions.csv` at the project root and prints a report: final balances, one line per transfer with its outcome, and a summary count.
+Runs the provided `mable_account_balances.csv` / `mable_transactions.csv` and prints a report: final balances, one line per transfer with its outcome, and a summary count.
+
+To run a different day's files: `ruby bin/run.rb path/to/balances.csv path/to/transfers.csv`.
 
 Example output from a mixed batch (success, insufficient funds, account not found, invalid amount all in one run):
 
@@ -30,15 +32,20 @@ Example output from a mixed batch (success, insufficient funds, account not foun
 
 ## Assumptions
 
-- **Output format**: console summary for now (final balances + a success/fail line per transfer). Can swap for a CSV writer later if that's preferred.
-- **Unknown account number** (either side of a transfer): skip that transfer, keep processing the rest of the batch, report it as `account_not_found` - kept separate from insufficient funds rather than lumped in with it.
-- **Overdraft** (balance would go below $0): skip just that transfer, report `insufficient_funds`, keep processing the rest.
-- **Money** is always `BigDecimal`, never `Float` - avoids cent-level rounding drift across a batch of transfers.
-- **Scope**: single company, single ledger, matching the brief. Not designed for multiple companies unless that's actually needed.
+- **Input delivery**: CLI args / local file paths, for this exercise. In a real deployment the file would arrive from the client company some other way (an upload endpoint, SFTP, etc.), not a console command. `bin/run.rb`'s CLI args exist so this is actually runnable and testable here, not as a stand-in for how input would really get in.
+- **Output format**: console summary for now (final balances + a success/fail line per transfer). Easy to swap for a CSV writer later if preferred.
+- **Unknown account number**: skip that transfer, keep processing the rest, report `account_not_found`.
+- **Overdraft**: skip that transfer, report `insufficient_funds`, keep processing the rest.
+- **Negative transfer amount**: same treatment, reported as `invalid_amount`.
+- **Malformed CSV row** (wrong column count, a value that won't parse, an invalid account number, invalid CSV syntax): skip the row, warn on stderr, keep loading the rest of the file. Warnings never print the actual field values - only a row number and a fixed reason - so a real account number or balance can't end up in a log.
+- **Duplicate account number** in the balances file: first occurrence wins, later ones are skipped and warned about rather than silently overwriting the earlier balance.
+- **Account numbers** must be exactly 16 digits, enforced in `Account`.
+- **Money** is always `BigDecimal`, never `Float` - avoids cent-level rounding drift across a batch.
+- **Scope**: single company, single ledger, matching the brief.
 
 ## Testing
 
-Loader specs run against small fixture CSVs in `spec/fixtures/`, not the provided sample data - keeps those tests decoupled from anything unrelated to parsing. `BatchRunner`'s spec covers three integration scenarios: a small fixture (basic wiring), the real provided CSVs (final balances match the hand-verified table below), and `spec/fixtures/transfers_with_failures.csv` (a mixed batch - success, insufficient funds, and an unknown account number in one run) since the provided sample data is entirely happy-path.
+Loader specs run against small fixture CSVs in `spec/fixtures/`, not the provided sample data - keeps them decoupled from anything unrelated to parsing. `BatchRunner`'s spec covers three integration scenarios: a small fixture (basic wiring), the real provided CSVs (final balances match the table below), and a mixed-batch fixture covering every failure path, since the provided sample data is all happy-path.
 
 ### Expected result for the provided sample data
 
@@ -54,13 +61,20 @@ All four sample transfers succeed - asserted directly in `spec/batch_runner_spec
 
 ## Design
 
-- `Account` - balance plus the one rule that can never break: it can't go negative.
-- `Transfer` - a requested move of money between two account numbers. `#execute(ledger)` does the work and returns a `TransferResult`. Also guards against a negative amount up front, failing gracefully rather than letting `Account` raise and crash the batch.
+- `Account` - balance plus the two invariants that can never break: it can't go negative, and the account number must be 16 digits.
+- `Transfer` - a requested move of money between two account numbers. `#execute(ledger)` does the work and returns a `TransferResult`.
 - `TransferResult` - what happened to a transfer: success or not, and why if not.
 - `Ledger` - a lookup table, account number -> `Account`.
-- `AccountLoader` / `TransferLoader` - turn the CSV files into the objects above, skipping and warning on any malformed row rather than failing the whole file.
-- `BatchRunner` - orchestrates a full run: builds the `Ledger`, loads the transfers, executes each one, hands back `{ results:, ledger: }`. `.call` is a thin wrapper that delegates to a short-lived instance, so private helper methods have somewhere to live.
+- `AccountLoader` / `TransferLoader` - turn the CSV files into the objects above. Skip and warn on a malformed row rather than failing the whole file.
+- `BatchRunner` - orchestrates a full run: builds the `Ledger`, loads the transfers, executes each one, hands back `{ results:, ledger: }`.
 - `ConsoleReport` - prints the result: final balances, per-transfer outcomes, a summary count.
-- `bin/run.rb` - entry point, wires real file paths to `BatchRunner` + `ConsoleReport`.
+- `bin/run.rb` - entry point. Optional CLI args for a different day's files, falls back to the provided sample CSVs otherwise.
 
-**A design detail**: `BatchRunner`/`ConsoleReport` need private helpers that share state across calls (e.g. the file paths passed in), so their `.call`/`.print` class methods delegate immediately to a short-lived instance - ordinary `private` instance methods then just work. `AccountLoader`/`TransferLoader`'s row-building helpers need no state at all (pure functions of a single CSV row), so they use `private_class_method` instead - no instance required. Same problem, two different tools, chosen by what the helper actually needs.
+## Stretch goals
+
+Things I'd add if this were a real system instead of a time-boxed exercise:
+
+- **Lock down which files it'll read.** `bin/run.rb` takes a file path straight from the command line right now, with no allowlist or sandboxing. That's fine for a local script you're pointing at your own files, but a real automated batch job shouldn't accept a free-text path from an untrusted source at all, since someone could point it at a file it has no business reading (or use it to fish for what's on disk). The actual fix is architectural: restrict it to a known upload location rather than trying to sanitize arbitrary paths.
+- **Stream the CSV instead of loading it all at once.** `CSV.read` pulls the whole file into memory before processing a single row. Fine for a day's worth of transfers, but a huge file would cause real memory pressure. Ruby's `CSV.foreach` would let it process one row at a time instead.
+- **A real logger instead of `warn`.** Malformed-row warnings go straight to stderr as plain text right now. That's fine to watch in a terminal, but a proper logger (with levels, and a format something else could parse) would be more useful once this runs unattended as a daily job.
+- **An output format besides the console.** The report only prints to the terminal today. A CSV or JSON output option would make it easier to feed into something downstream instead of a human having to read it.
