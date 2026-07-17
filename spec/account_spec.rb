@@ -52,7 +52,7 @@ RSpec.describe Account do
   end
 
   describe '#sufficient_funds?' do
-  let(:account) { Account.new(number: "1111234522226789", balance: BigDecimal("100.0")) }
+    let(:account) { Account.new(number: "1111234522226789", balance: BigDecimal("100.0")) }
     context 'when an amount is debited from the balance that makes it positive' do
       it 'returns true' do
         expect(account.sufficient_funds?(BigDecimal("50.00"))).to be true
