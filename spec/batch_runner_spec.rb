@@ -1,22 +1,24 @@
+# frozen_string_literal: true
+
 require "bigdecimal"
 require_relative "../lib/batch_runner"
 
 RSpec.describe BatchRunner do
-  describe '.call' do
+  describe ".call" do
     let(:balances_path) { "spec/fixtures/balances.csv" }
     let(:transfers_path) { "spec/fixtures/transactions.csv" }
 
-    it 'creates a hash with TransferResults and the ledgers for the account' do
+    it "creates a hash with TransferResults and the ledgers for the account" do
       batch = BatchRunner.call(balances_path, transfers_path)
       expect(batch[:results].length).to eq(2)
       expect(batch[:ledger]).to be_an_instance_of(Ledger)
     end
     # integration tests
-    context 'when run against the real provided CSVs' do
+    context "when run against the real provided CSVs" do
       let(:real_balances_path) { "mable_account_balances.csv" }
       let(:real_transfers_path) { "mable_transactions.csv" }
-      
-      it 'returns the correct balance' do
+
+      it "returns the correct balance" do
         batch = BatchRunner.call(real_balances_path, real_transfers_path)
 
         expect(batch[:ledger].find("1111234522226789").balance).to eq(BigDecimal("4820.50"))
@@ -26,10 +28,10 @@ RSpec.describe BatchRunner do
         expect(batch[:ledger].find("3212343433335755").balance).to eq(BigDecimal("48679.50"))
       end
     end
-    context 'when a batch includes failures' do
-      let(:transfer_failures_path) { 'spec/fixtures/transfers_with_failures.csv' }
+    context "when a batch includes failures" do
+      let(:transfer_failures_path) { "spec/fixtures/transfers_with_failures.csv" }
 
-      it 'processes each transfer independently and reports the outcome' do
+      it "processes each transfer independently and reports the outcome" do
         batch = BatchRunner.call(balances_path, transfer_failures_path)
 
         successful_result, insufficient_funds_result, account_not_found_result = batch[:results]

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative "loaders/account_loader"
 require_relative "loaders/transfer_loader"
 require_relative "ledger"

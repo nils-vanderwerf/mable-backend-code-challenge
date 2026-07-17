@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "../lib/batch_runner"
 require_relative "../lib/console_report"
 
