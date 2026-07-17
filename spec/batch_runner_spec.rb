@@ -15,8 +15,8 @@ RSpec.describe BatchRunner do
     end
 
     context "when run against the real provided CSVs" do
-      let(:real_balances_path) { "mable_account_balances.csv" }
-      let(:real_transfers_path) { "mable_transactions.csv" }
+      let(:real_balances_path) { "data/mable_account_balances.csv" }
+      let(:real_transfers_path) { "data/mable_transactions.csv" }
 
       it "returns the correct balance" do
         batch = BatchRunner.call(balances_path: real_balances_path, transfers_path: real_transfers_path)

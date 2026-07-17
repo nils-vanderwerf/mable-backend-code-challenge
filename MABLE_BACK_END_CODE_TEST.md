@@ -9,7 +9,7 @@ that can load account balances for a single company and then accept a day's
 transfers in a CSV file. An example customer balance file is provided as well
 as an example days transfers.
 
-eg [mable_account_balances.csv](./mable_account_balances.csv)
+eg [mable_account_balances.csv](./data/mable_account_balances.csv)
 
 | Starting state of accounts for Account | customers of Alpha Sales: Balance |
 |---------------------------------------:|----------------------------------:|
@@ -21,7 +21,7 @@ eg [mable_account_balances.csv](./mable_account_balances.csv)
 
 Single day transactions for Alpha sales:
 
-eg [mable_transactions.csv](./mable_transactions.csv)
+eg [mable_transactions.csv](./data/mable_transactions.csv)
 
 | From             | To               | Amount  |
 |-----------------:|-----------------:|--------:|

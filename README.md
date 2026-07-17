@@ -24,7 +24,7 @@ bundle exec rspec
 ruby bin/run.rb
 ```
 
-Runs the provided `mable_account_balances.csv` / `mable_transactions.csv` and prints a report: final balances, one line per transfer with its outcome, and a summary count.
+Runs the provided `data/mable_account_balances.csv` / `data/mable_transactions.csv` and prints a report: final balances, one line per transfer with its outcome, and a summary count.
 
 To run a different day's files: `ruby bin/run.rb path/to/balances.csv path/to/transfers.csv`.
 
