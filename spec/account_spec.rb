@@ -1,8 +1,27 @@
 # frozen_string_literal: true
 
+require "bigdecimal"
 require_relative "../lib/account"
 
 RSpec.describe Account do
+  describe "#initialize" do
+    context "when the account number isn't a 16 digit number" do
+      it "raises an error for a number that's too short" do
+        expect { Account.new(number: "123", balance: BigDecimal("100.00")) }
+          .to raise_error(ArgumentError, "account number must be a 16 digit number")
+      end
+
+      it "raises an error for a number that's too long" do
+        expect { Account.new(number: "12345678901234567", balance: BigDecimal("100.00")) }
+          .to raise_error(ArgumentError, "account number must be a 16 digit number")
+      end
+
+      it "raises an error for a number containing non-digit characters" do
+        expect { Account.new(number: "111123452222A789", balance: BigDecimal("100.00")) }
+          .to raise_error(ArgumentError, "account number must be a 16 digit number")
+      end
+    end
+  end
   describe "#balance" do
     context "when provided with an account number and a balance" do
       let(:account) { Account.new(number: "1111234522226789", balance: BigDecimal("5000.00")) }

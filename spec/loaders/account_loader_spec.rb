@@ -24,5 +24,16 @@ RSpec.describe AccountLoader do
         expect(accounts.first.number).to eq("1111111111111111")
       end
     end
+
+    context "when a row's account number isn't 16 digits" do
+      let(:csv_path) { "spec/fixtures/balances_with_bad_account_number.csv" }
+
+      it "skips the bad row the same way as any other malformed row, no loader changes needed" do
+        accounts = nil
+        expect { accounts = AccountLoader.load(csv_path) }.to output(/skipping malformed row/).to_stderr
+        expect(accounts.length).to eq(1)
+        expect(accounts.first.number).to eq("1111111111111111")
+      end
+    end
   end
 end
