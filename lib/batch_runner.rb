@@ -21,9 +21,7 @@ class BatchRunner
 
   private
 
-  # builds the ledger once from the balances csv
-  # need to memoize it because otherwise it will build a new ledger from scratch, instead of the transfers' effects 
-
+  # memoized - otherwise every call rebuilds a fresh ledger, losing prior transfers' effects
   def ledger
     @ledger ||= Ledger.new(AccountLoader.load(@balances_path))
   end
