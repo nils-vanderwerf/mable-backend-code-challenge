@@ -36,7 +36,6 @@ class ConsoleReport
   private
 
   def print_balances
-    # print each account number and its balance in the ledger
     @ledger.all.each do |account|
       puts "The balance for ACCOUNT: #{account.number} is: $#{account.balance.to_s('F')}"
     end
@@ -51,15 +50,13 @@ class ConsoleReport
   end
 
   def label_for(reason)
-    # #fetch returns the matching label if reason is a known key; otherwise it runs the
-    # block and returns that instead. Unlike #[], a missing key can't silently become nil.
-    # The block form (vs a 2nd #fetch arg) only builds the fallback string if it's actually needed.
+    # #fetch with a block: known reason -> its label. Unknown reason -> runs the block
+    # instead of quietly returning nil, which plain #[] would do.
     REASON_LABELS.fetch(reason) { "unsuccessful - unknown reason (#{reason.inspect})" }
   end
 
-  # Transfer#execute's guard stops a negative amount from being acted on (no debit!/credit!
-  # happens) - not from being reported. A rejected transfer still shows its real amount here,
-  # so this branch is reachable. Minus sign goes before the $, not between it and the digits.
+  # A negative amount never gets debited/credited, but it's still reported - so this
+  # branch is reachable. Minus sign goes in front of the $, not between the $ and the digits.
   def format_amount(amount)
     amount.negative? ? "-$#{amount.abs.to_s('F')}" : "$#{amount.to_s('F')}"
   end

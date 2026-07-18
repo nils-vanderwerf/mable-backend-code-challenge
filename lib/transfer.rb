@@ -12,8 +12,8 @@ class Transfer
   end
 
   def execute(ledger)
-    # Guard before touching accounts - Account#debit!/#credit! raise ArgumentError on a
-    # negative amount, which would otherwise crash the whole batch over one bad transfer.
+    # Check this first - debit!/credit! would raise on a negative amount, which would
+    # crash the whole batch instead of just skipping this one transfer.
     return failure(TransferResult::INVALID_AMOUNT) if @amount.negative?
 
     from_account = ledger.find(@from)

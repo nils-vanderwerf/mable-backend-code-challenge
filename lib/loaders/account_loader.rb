@@ -5,6 +5,9 @@ require "bigdecimal"
 require_relative "../account"
 
 class AccountLoader
+  # private_class_method here, not the instance + new(...).call pattern BatchRunner uses -
+  # these are pure functions of their arguments, no state to share between calls, so
+  # there's no reason to pay for an instance.
   def self.load(csv_path)
     rows = read_csv(csv_path)
     accounts = rows.each_with_index.filter_map { |row, index| build_account(row, index + 1) }
@@ -30,8 +33,8 @@ class AccountLoader
   end
   private_class_method :build_account
 
-  # Never echoes the raw value - BigDecimal's own error message does that, which would
-  # leak field content (from this file, or an unrelated one if a path pointed elsewhere).
+  # BigDecimal's own error message quotes the bad value back verbatim - that would leak
+  # real field content into the warning. Raise a generic message instead.
   def self.parse_balance(balance)
     BigDecimal(balance)
   rescue ArgumentError, TypeError
@@ -39,9 +42,9 @@ class AccountLoader
   end
   private_class_method :parse_balance
 
-  # First occurrence wins - a repeat would otherwise silently overwrite an earlier
-  # balance once Ledger turns these into a number => account lookup hash. Doesn't log
-  # the account number itself, same reasoning as InsufficientFundsError's message.
+  # First occurrence wins - a duplicate would otherwise silently overwrite the earlier
+  # balance once these become a lookup hash. Warning skips the account number, same
+  # reason as the other messages in this file.
   def self.reject_duplicates(accounts)
     seen_numbers = {}
     accounts.select do |account|

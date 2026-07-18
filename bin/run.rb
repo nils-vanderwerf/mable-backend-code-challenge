@@ -3,12 +3,12 @@
 require_relative "../lib/batch_runner"
 require_relative "../lib/console_report"
 
-# Optional CLI args for a different day's CSVs (ruby bin/run.rb balances.csv transfers.csv).
-# With no args, falls back to the two sample files provided with this project.
+# Optional CLI args for a different day's CSVs; with none given, falls back
+# to the sample files provided with this project.
 balances_path = ARGV[0] || File.expand_path("../data/mable_account_balances.csv", __dir__)
 transfers_path = ARGV[1] || File.expand_path("../data/mable_transactions.csv", __dir__)
 
-# A typo'd path from the command line would otherwise crash with a raw Errno::ENOENT.
+# Check the files exist first - a bad path would otherwise crash with a raw Errno::ENOENT.
 [balances_path, transfers_path].each do |path|
   unless File.exist?(path)
     warn "Can't find file: #{path}"
