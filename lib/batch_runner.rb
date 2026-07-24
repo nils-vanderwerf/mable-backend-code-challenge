@@ -5,8 +5,8 @@ require_relative "loaders/transfer_loader"
 require_relative "ledger"
 
 class BatchRunner
-  # .call is just the public entry point, hands off to a real instance
-  # straight away so the private methods below actually work
+  # .call just builds an instance and hands off to it, so the private methods
+  # below have somewhere to live (a class method alone couldn't use them).
   def self.call(balances_path:, transfers_path:)
     # Named on both sides so it's clear at a glance which value goes where.
     new(balances_path: balances_path, transfers_path: transfers_path).call
@@ -23,7 +23,8 @@ class BatchRunner
 
   private
 
-  # memoized - otherwise every call rebuilds a fresh ledger, losing prior transfers' effects
+  # Memoized with @ledger ||= - build it once, reuse it after. Without this, every call
+  # would build a brand new Ledger from the CSV again, wiping out any transfers already applied.
   def ledger
     @ledger ||= Ledger.new(AccountLoader.load(@balances_path))
   end

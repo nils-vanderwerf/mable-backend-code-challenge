@@ -2,7 +2,7 @@
 
 class Ledger
   def initialize(accounts)
-    # turn the accounts array into a number => account hash once, so find doesn't have to loop every time
+    # build a number => account hash once, so find is a lookup instead of a search
     @accounts = accounts.to_h do |account|
       [account.number, account]
     end
@@ -13,7 +13,7 @@ class Ledger
     @accounts[number]
   end
 
-  # if we need to look up all accounts in the collection, will be useful for console report
+  # used by ConsoleReport to list every account's final balance
   def all
     @accounts.values
   end

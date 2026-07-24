@@ -5,6 +5,8 @@ require "bigdecimal"
 require_relative "../transfer"
 
 class TransferLoader
+  # Same private_class_method reasoning as AccountLoader: pure functions, no shared
+  # state, no need for an instance.
   def self.load(csv_path)
     rows = read_csv(csv_path)
     rows.each_with_index.filter_map { |row, index| build_transfer(row, index + 1) }
@@ -29,7 +31,7 @@ class TransferLoader
   end
   private_class_method :build_transfer
 
-  # Never echoes the raw value - same reasoning as AccountLoader's balance parsing.
+  # Same reasoning as AccountLoader#parse_balance - never echo the raw value back.
   def self.parse_amount(amount)
     BigDecimal(amount)
   rescue ArgumentError, TypeError
