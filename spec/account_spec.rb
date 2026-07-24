@@ -4,6 +4,7 @@ require "bigdecimal"
 require_relative "../lib/account"
 
 RSpec.describe Account do
+  let(:account) { Account.new(number: "1111234522226789", balance: BigDecimal("100.0")) }
   describe "#initialize" do
     context "when the account number isn't a 16 digit number" do
       it "raises an error for a number that's too short" do
@@ -31,7 +32,6 @@ RSpec.describe Account do
     end
   end
   describe "#credit!" do
-    let(:account) { Account.new(number: "1111234522226789", balance: BigDecimal("100.0")) }
     context "when an amount is credited to the account" do
       it "updates the current balance" do
         account.credit!(BigDecimal("50.00"))
@@ -46,7 +46,6 @@ RSpec.describe Account do
     end
   end
   describe "#debit!" do
-    let(:account) { Account.new(number: "1111234522226789", balance: BigDecimal("100.0")) }
     context "when an amount is debited from the account and the remaining amount is greater than zero" do
       it "updates the current balance" do
         account.debit!(BigDecimal("50.0"))
@@ -76,7 +75,6 @@ RSpec.describe Account do
   end
 
   describe "#sufficient_funds?" do
-    let(:account) { Account.new(number: "1111234522226789", balance: BigDecimal("100.0")) }
     context "when an amount is debited from the balance that makes it positive" do
       it "returns true" do
         expect(account.sufficient_funds?(BigDecimal("50.00"))).to be true
@@ -91,6 +89,16 @@ RSpec.describe Account do
       it "returns true" do
         expect(account.sufficient_funds?(BigDecimal("150.00"))).to be false
       end
+    end
+  end
+  describe "#balance=" do 
+    it "doesn't exist - balance can only change through credit!/debit!" do
+      expect { account.balance = BigDecimal("5") }.to raise_error(NoMethodError)
+    end
+  end
+  describe "#number=" do
+    it "doesn't exist - account number can only be set at construction" do
+      expect { account.number = "1212343433335665" }.to raise_error(NoMethodError)
     end
   end
 end

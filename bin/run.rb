@@ -2,6 +2,7 @@
 
 require_relative "../lib/batch_runner"
 require_relative "../lib/console_report"
+require 'pry'
 
 # Optional CLI args for a different day's CSVs; with none given, falls back
 # to the sample files provided with this project.
