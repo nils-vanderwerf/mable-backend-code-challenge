@@ -12,4 +12,5 @@ end
 
 group :development do
   gem "rubocop", require: false
+  gem 'pry'
 end
