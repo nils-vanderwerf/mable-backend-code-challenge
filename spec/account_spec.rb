@@ -27,7 +27,7 @@ RSpec.describe Account do
           .to raise_error(ArgumentError, "account number must be a 16 digit number")
       end
       it "raises an error when the account number isn't a string" do
-        expect { Account.new(number: 1111234522226789, balance: BigDecimal("100.00")) }
+        expect { Account.new(number: 1_111_234_522_226_789, balance: BigDecimal("100.00")) }
           .to raise_error(ArgumentError, "account number must be a 16 digit number")
       end
     end
@@ -101,7 +101,7 @@ RSpec.describe Account do
       end
     end
   end
-  describe "#balance=" do 
+  describe "#balance=" do
     it "doesn't exist - balance can only change through credit!/debit!" do
       expect { account.balance = BigDecimal("5") }.to raise_error(NoMethodError)
     end
